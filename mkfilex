@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+d:
+  npm run dev
+
+b:
+  npm run build

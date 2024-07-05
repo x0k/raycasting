@@ -2,16 +2,15 @@
   "name": "raycasting",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "node watch.js"
+    "dev": "vite --port 6969",
+    "build": "tsc && vite build"
   },
   "author": "Alexey Kutepov <reximkut@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "typescript": "^5.4.5",
-    "ws": "^8.17.1"
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3"
   }
 }
