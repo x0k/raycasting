@@ -1,11 +1,3 @@
-import {
-  createScene,
-  createPlayer,
-  renderGame,
-  Vector2,
-  sceneSize,
-} from "./game";
-
 const SCREEN_FACTOR = 30;
 const SCREEN_WIDTH = Math.floor(16 * SCREEN_FACTOR);
 const SCREEN_HEIGHT = Math.floor(9 * SCREEN_FACTOR);
@@ -28,6 +20,8 @@ async function loadImageData(url: string): Promise<ImageData> {
   return ctx.getImageData(0, 0, image.width, image.height);
 }
 
+let game: typeof import('./game')
+
 (async () => {
   const gameCanvas = document.getElementById(
     "game"
@@ -45,7 +39,9 @@ async function loadImageData(url: string): Promise<ImageData> {
     loadImageData("images/custom/key.png"),
   ]);
 
-  const scene = createScene([
+  game = Object.assign({}, await import('./game'));
+
+  const scene = game.createScene([
     [null, null, wall, wall, null, null, null],
     [null, null, null, null, null, null, null],
     [wall, null, null, null, null, null, null],
@@ -58,11 +54,11 @@ async function loadImageData(url: string): Promise<ImageData> {
   const sprites = [
     {
       imageData: key,
-      position: new Vector2(1.5, 1.5),
+      position: new game.Vector2(1.5, 1.5),
     },
   ];
 
-  const player = createPlayer(sceneSize(scene).scale(0.63), Math.PI * 1.25);
+  const player = game.createPlayer(game.sceneSize(scene).scale(0.63), Math.PI * 1.25);
 
   const backImageData = new ImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
   backImageData.data.fill(255);
@@ -126,7 +122,7 @@ async function loadImageData(url: string): Promise<ImageData> {
   const frame = (timestamp: number) => {
     const deltaTime = (timestamp - prevTimestamp) / 1000;
     prevTimestamp = timestamp;
-    renderGame(display, deltaTime, player, scene, sprites);
+    game.renderGame(display, deltaTime, player, scene, sprites);
     window.requestAnimationFrame(frame);
   };
   window.requestAnimationFrame((timestamp) => {
@@ -138,3 +134,15 @@ async function loadImageData(url: string): Promise<ImageData> {
 // TODO: Try lighting with normal maps that come with some of the assets
 // TODO: Load assets asynchronously
 //   While a texture is loading, replace it with a color tile.
+
+// Vite specific hot reload logic
+// https://vitejs.dev/guide/api-hmr
+if (import.meta.hot) {
+  import.meta.hot.accept(["./game.ts"], ([m]) => {
+    if (m === undefined) {
+      console.error("Failed to reload game");
+      return
+    }
+    Object.assign(game, m);
+  })
+}
